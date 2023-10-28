@@ -45,7 +45,7 @@
 </template>
 
 
-<script lang="ts" setup>
+<script  setup>
 import { useUserStore } from '~/stores/user'
 const userStore = useUserStore()
 const props = defineProps(['product', "selectedArray"])

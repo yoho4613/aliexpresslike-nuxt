@@ -2,10 +2,8 @@
   <div class="fixed z-[-1] bg-[#f2f2f2] w-full h-[100vh]"></div>
   <NuxtPage />
 
-  <MenuOverlayVue :class="[
-    { 'max-h-[100vh] transition-all duration-200 ease-in visible': userStore.isMenuOverlay },
-    { 'max-h-0 transition-all duration-200 ease-out invisible': !userStore.isMenuOverlay }
-  ]" />
+  <MenuOverlayVue
+    :class="userStore.isMenuOverlay ? 'max-h-[100vh] transition-all duration-200 ease-in visible' : 'max-h-0 transition-all duration-200 ease-out invisible'" />
 </template>
 
 <script setup>
@@ -29,7 +27,7 @@ watch(() => windowWidth.value, () => {
 })
 
 watch(() => route.fullPath, () => {
-  userStore.isLoading = true
+  userStore.isLoading = false
 })
 
 </script>

@@ -20,4 +20,6 @@
 
 <script setup>
   import MainLayout from '~/layouts/MainLayout.vue';
+  let contactName=''
+
 </script>

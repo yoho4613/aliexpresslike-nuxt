@@ -1,5 +1,5 @@
 <template>
-  <div id="MenuOverlay" class="fixed z-50 top-0 h-full w-full bg-white px-3">
+  <div id="MenuOverlay" class="fixed z-50 bottom-0 h-full w-full bg-white px-3">
     <div class="flex item-center justify-between py-5">
       <NuxtLink to="/" @click="userStore.isMenuOverlay = false">
         <img width="170" src="/AliExpress-logo.png" alt="Logo">

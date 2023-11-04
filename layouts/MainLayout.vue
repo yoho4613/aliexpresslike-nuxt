@@ -27,7 +27,7 @@
 
           <div id="AccountMenu" v-if="isAccountMenu"
             class="absolute bg-white w-[220px] text-[#333] z-40 top-[38px] -left-[100px] border-x border-b">
-            <div v-if="true">
+            <div v-if="!user">
               <div class="text-semibold text-[15px] my-4 px-3">
                 Welcome to AllExpress!
               </div>
@@ -43,7 +43,7 @@
                 <li @click="navigateTo('/orders')" class="text-[13px] py-2 px-4 w-full hover:bg-gray-200">
                   My Orders
                 </li>
-                <li v-if="true" class="text-[13px] py-2 px-4 w-full hover:bg-gray-200">
+                <li v-if="user" @click="client.auth.signOut()" class="text-[13px] py-2 px-4 w-full hover:bg-gray-200">
                   Sign Out
                 </li>
               </ul>
@@ -70,13 +70,14 @@
             </div>
 
             <div class="absolute bg-white max-w-[700px] h-auto w-full">
-              <div v-if="false" class="p-1">
-                <NuxtLink to="/item/1" class="flex items-center justify-between w-full cursor-pointer hover:bg-gray-100">
+              <div v-if="items && items.data" v-for="item in items.data" class="p-1">
+                <NuxtLink :to="`/item/${item.id}`"
+                  class="flex items-center justify-between w-full cursor-pointer hover:bg-gray-100">
                   <div class="flex items-center">
-                    <img class="rounded-md" width="40" src="https://picsum.photos/id/82/300/320" />
-                    <div class="truncate ml-2">TESTING</div>
+                    <img class="rounded-md" width="40" :src="item.url" />
+                    <div class="truncate ml-2">{{ item.title }}</div>
                   </div>
-                  <div class="truncate">$ 98.99</div>
+                  <div class="truncate">$ {{ item.price / 100 }}</div>
                 </NuxtLink>
               </div>
             </div>
@@ -87,7 +88,7 @@
           <button class="relative md:block hidden" @mouseenter="isCartHover = true" @mouseleave="isCartHover = false">
             <span
               class="absolute flex items-center justify-center -right-[3px] top-0 bg-[#ff4646] h-[17px] min-w-[17px] text-xs text-white px-0.5 rounded-full">
-              0
+              {{ userStore.cart.length }}
             </span>
             <div class="min-w-[40px]">
               <Icon name="ph:shopping-cart-simple-light" size="33" :color="isCartHover ? '#ff4646' : ''" />
@@ -111,11 +112,34 @@
   <Footer v-if="!userStore.isLoading" />
 </template>
 
-<script lang="ts" setup>
+<script setup>
 import { useUserStore } from '~/stores/user'
 const userStore = useUserStore()
+
+const client = useSupabaseClient()
+const user = useSupabaseUser()
+
 let isAccountMenu = ref(false)
 let isCartHover = ref(false)
 let isSearching = ref(false)
 let searchItem = ref("")
+let items = ref(null)
+
+const searchByName = useDebounce(async () => {
+  isSearching.value = true
+  items.value = await useFetch(`/api/prisma/search-by-name/${searchItem.value}`)
+  isSearching.value = false
+}, 100)
+
+watch(() => searchItem.value, async () => {
+  if (!searchItem.value) {
+    setTimeout(() => {
+      items.value = ''
+      isSearching.value = false
+      return
+    }, 500)
+  }
+  searchByName()
+})
+
 </script>

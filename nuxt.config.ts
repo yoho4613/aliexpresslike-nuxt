@@ -7,8 +7,11 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
     "@nuxtjs/tailwindcss",
-    // "@nuxtjs/supabase"
+    "@nuxtjs/supabase",
   ],
+  supabase: {
+    redirect: false,
+  },
   runtimeConfig: {
     public: {
       stripePk: process.env.STRIPE_PK_KEY,

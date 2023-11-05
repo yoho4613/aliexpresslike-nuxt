@@ -11,7 +11,7 @@ export default defineEventHandler(async (e) => {
     data: {
       name: body.name,
       address: body.address,
-      zipcode: body.zipCode,
+      zipcode: body.zipcode,
       city: body.city,
       country: body.country,
     },

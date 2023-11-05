@@ -9,8 +9,8 @@
             :error="error && error.type === 'contactname' ? error.message : ''" />
           <TextInput class="w-full mt-2" placeholder="Address" v-model:input="address" inputType="text"
             :error="error && error.type === 'address' ? error.message : ''" />
-          <TextInput class="w-full mt-2" placeholder="Zip Code" v-model:input="zipCode" inputType="text"
-            :error="error && error.type === 'zipCode' ? error.message : ''" />
+          <TextInput class="w-full mt-2" placeholder="Zip Code" v-model:input="zipcode" inputType="text"
+            :error="error && error.type === 'zipcode' ? error.message : ''" />
           <TextInput class="w-full mt-2" placeholder="City" v-model:input="city" inputType="text"
             :error="error && error.type === 'city' ? error.message : ''" />
           <TextInput class="w-full mt-2" placeholder="Country" v-model:input="country" inputType="text"
@@ -35,7 +35,7 @@ const user = useSupabaseUser()
 
 let contactName = ref(null)
 let address = ref(null)
-let zipCode = ref(null)
+let zipcode = ref(null)
 let city = ref(null)
 let country = ref(null)
 
@@ -44,15 +44,16 @@ let isUpdate = ref(false)
 let isWorking = ref(false)
 let error = ref(null)
 
+console.log(user.value.id)
+
 watchEffect(async () => {
   currentAddress.value = await useFetch(`/api/prisma/get-address-by-user/${user.value.id}`)
   if (currentAddress.value.data) {
     contactName.value = currentAddress.value.data.name
     address.value = currentAddress.value.data.address
-    zipCode.value = currentAddress.value.data.zipcode
+    zipcode.value = currentAddress.value.data.zipcode
     city.value = currentAddress.value.data.city
     country.value = currentAddress.value.data.country
-
   }
   userStore.isLoading = false
 })
@@ -72,9 +73,9 @@ const submit = async () => {
       type: "address",
       message: "An Address is required"
     }
-  } else if (!zipCode.value) {
+  } else if (!zipcode.value) {
     error.value = {
-      type: "zipCode",
+      type: "zipcode",
       message: "A Zip Code is required"
     }
   } else if (!country.value) {
@@ -96,7 +97,7 @@ const submit = async () => {
         userId: user.value.id,
         name: contactName.value,
         address: address.value,
-        zipCode: zipCode.value,
+        zipcode: zipcode.value,
         city: city.value,
         country: country.value,
       }
@@ -108,12 +109,14 @@ const submit = async () => {
 
   await useFetch(`/api/prisma/add-address/`, {
     method: "POST",
-    userId: user.value.id,
-    name: contactName.value,
-    address: address.value,
-    zipCode: zipCode.value,
-    city: city.value,
-    country: country.value,
+    body: {
+      userId: user.value.id,
+      name: contactName.value,
+      address: address.value,
+      zipcode: zipcode.value,
+      city: city.value,
+      country: country.value,
+    }
   })
 
   isWorking.value = false

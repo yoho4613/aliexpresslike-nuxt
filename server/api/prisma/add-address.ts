@@ -3,17 +3,18 @@ const prisma = new PrismaClient();
 
 export default defineEventHandler(async (e) => {
   const body = await readBody(e);
-  const { userId, name, address, zipCode, city, country } = body;
-  let order = await prisma.addresses.create({
+
+  const { userId, name, address, zipcode, city, country } = body;
+  let addedAddress = await prisma.addresses.create({
     data: {
       userId,
       name,
       address,
-      zipcode: zipCode,
+      zipcode,
       city,
       country,
     },
   });
 
-  return order;
+  return addedAddress;
 });

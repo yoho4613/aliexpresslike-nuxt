@@ -95,6 +95,7 @@
 </template>
 
 <script setup>
+import Stripe from 'stripe';
 import MainLayout from '~/layouts/MainLayout.vue';
 import { useUserStore } from '~/stores/user';
 
@@ -147,19 +148,90 @@ watch(() => total.value, () => {
 })
 
 const stripeInit = async () => {
+  const runtimeConfig = useRuntimeConfig()
+  stripe = Stripe(runtimeConfig.stripePk)
 
+  let res = await $fetch(`api/stripe/paymentintent`, {
+    method: "POST",
+    body: {
+      amount: total.value
+    }
+  })
+  console.log(stripe)
+  console.log(res)
+
+  clientSecret = res.client_secret
+  elements = stripe.elements()
+  var style = {
+    base: {
+      fontSize: "18px",
+    },
+    invalid: {
+      fontFamily: 'Arial, sans-serif',
+      color: "#ee4b2b",
+      iconColor: "#ee4b2b"
+    }
+  }
+
+  card = elements.creat("card", {
+    hidePostalCode: true,
+    style: style
+  })
+
+  card.mount("#card-element")
+  card.on("change", function (e) {
+    document.querySelector("button").disabled = e.empty
+    document.querySelector("#card-error").textContent = e.error ? e.error.message : ""
+  })
+
+  isProcessing.value = false
 }
 
 const pay = async () => {
+  if (currentAddress.value && currentAddress.value.data == "") {
+    showError("Please add shipping address")
+    return
+  }
 
+  isProcessing = true
+  let result = await stripe.confirmCardPayment(clientSecret, {
+    payment_method: { card: card }
+  })
+
+  if (result.error) {
+    showError(result.error.message)
+    isProcessing.value = false
+  } else {
+    await createOrder(result.paymentIntent.id)
+    userStore.cart = []
+    userStore.checkout = []
+    setTimeout(() => {
+      return navigateTo('/success')
+    }, 500)
+  }
 }
 
 const createOrder = async (stripeId) => {
-
+  await useFetch(`/api/prisma/create-order`, {
+    method: "POST",
+    body: {
+      stripeId: stripeId,
+      userId: user.value.id,
+      name: currentAddress.value.data.name,
+      address: currentAddress.value.data.address,
+      zipcode: currentAddress.value.data.zipcode,
+      city: currentAddress.value.data.city,
+      country: currentAddress.value.data.country,
+      products: userStore.checkout
+    }
+  })
 }
 
 const showError = (errorMsgText) => {
+  let errorMsg = document.querySelector("#card-error")
 
+  errorMsg.textContent = errorMsgText
+  setTimeout(() => { errorMsg.textContent = "" }, 4000)
 }
 
 </script>

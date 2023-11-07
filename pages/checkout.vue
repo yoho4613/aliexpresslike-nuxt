@@ -98,6 +98,7 @@
 import Stripe from 'stripe';
 import MainLayout from '~/layouts/MainLayout.vue';
 import { useUserStore } from '~/stores/user';
+import { loadStripe } from '@stripe/stripe-js';
 
 const userStore = useUserStore()
 const user = useSupabaseUser()
@@ -149,7 +150,7 @@ watch(() => total.value, () => {
 
 const stripeInit = async () => {
   const runtimeConfig = useRuntimeConfig()
-  stripe = Stripe(runtimeConfig.stripePk)
+  stripe = await loadStripe(String(runtimeConfig.stripePk))
 
   let res = await $fetch(`api/stripe/paymentintent`, {
     method: "POST",
@@ -162,6 +163,8 @@ const stripeInit = async () => {
 
   clientSecret = res.client_secret
   elements = stripe.elements()
+  console.log(elements)
+
   var style = {
     base: {
       fontSize: "18px",
@@ -173,7 +176,7 @@ const stripeInit = async () => {
     }
   }
 
-  card = elements.creat("card", {
+  card = elements.create("card", {
     hidePostalCode: true,
     style: style
   })

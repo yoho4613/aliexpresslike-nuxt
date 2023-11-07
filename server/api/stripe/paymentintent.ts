@@ -3,7 +3,7 @@ import Stripe from "stripe";
 export default defineEventHandler(async (e) => {
   const body = await readBody(e);
   const stripe = new Stripe(process.env.STRIPE_SK_KEY!, {
-    apiVersion: "2023-10-16",
+    apiVersion: "2022-11-15",
   });
 
   return await stripe.paymentIntents.create({

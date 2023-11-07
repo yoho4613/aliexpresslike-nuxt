@@ -150,20 +150,16 @@ watch(() => total.value, () => {
 
 const stripeInit = async () => {
   const runtimeConfig = useRuntimeConfig()
-  stripe = await loadStripe(String(runtimeConfig.stripePk))
-
+  stripe = await loadStripe(String(runtimeConfig.public.stripePk))
   let res = await $fetch(`api/stripe/paymentintent`, {
     method: "POST",
     body: {
       amount: total.value
     }
   })
-  console.log(stripe)
-  console.log(res)
 
   clientSecret = res.client_secret
   elements = stripe.elements()
-  console.log(elements)
 
   var style = {
     base: {
